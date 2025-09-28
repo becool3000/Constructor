@@ -1,0 +1,57 @@
+[
+  {
+    "id": "work_boots",
+    "name": "Work Boots",
+    "cost": 200,
+    "effects": { "buildSpeed": 0.05 }
+  },
+  {
+    "id": "drill",
+    "name": "Cordless Drill",
+    "cost": 350,
+    "effects": { "winRate": 0.02 },
+    "unlockJobs": ["patch_paint"]
+  },
+  {
+    "id": "ladder",
+    "name": "Telescoping Ladder",
+    "cost": 280,
+    "effects": { "crewEff": 0.03 }
+  },
+  {
+    "id": "circular_saw",
+    "name": "Circular Saw",
+    "cost": 520,
+    "effects": { "buildSpeed": 0.08 }
+  },
+  {
+    "id": "generator",
+    "name": "Portable Generator",
+    "cost": 800,
+    "effects": { "incomePerSec": 12 }
+  },
+  {
+    "id": "trailer_hitch",
+    "name": "Trailer Hitch",
+    "cost": 450,
+    "effects": { "truck.capacity": 5 }
+  },
+  {
+    "id": "fuel_cards",
+    "name": "Fuel Cards",
+    "cost": 300,
+    "effects": { "fuelCostMod": -0.15 }
+  },
+  {
+    "id": "site_radio",
+    "name": "Site Radio",
+    "cost": 250,
+    "effects": { "crewEff": 0.03 }
+  },
+  {
+    "id": "mini_crane",
+    "name": "Mini Crane",
+    "cost": 1800,
+    "effects": { "buildSpeed": 0.12 }
+  }
+]
