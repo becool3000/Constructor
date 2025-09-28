@@ -1,0 +1,64 @@
+[
+  {
+    "id": "vendor_discount_1",
+    "name": "Vendor Discount I",
+    "cost": 650,
+    "effects": { "materialsMod": -0.05 }
+  },
+  {
+    "id": "safety_brief_v1",
+    "name": "Safety Brief v1",
+    "cost": 480,
+    "effects": { "moraleCap": 0.05 }
+  },
+  {
+    "id": "crm_spreadsheet",
+    "name": "CRM Spreadsheet",
+    "cost": 900,
+    "effects": { "winRate": 0.05 }
+  },
+  {
+    "id": "quick_dry",
+    "name": "Quick-Dry Additive",
+    "cost": 1100,
+    "effects": { "job.concreteSpeed": 0.1 }
+  },
+  {
+    "id": "mini_crane_upgrade",
+    "name": "Mini Crane Rigging",
+    "cost": 1400,
+    "effects": { "job.structureSpeed": 0.15 }
+  },
+  {
+    "id": "permit_runner",
+    "name": "Permit Runner",
+    "cost": 750,
+    "effects": { "permitsPassive": 0.05 }
+  },
+  {
+    "id": "accounting_suite",
+    "name": "Accounting Suite",
+    "cost": 1200,
+    "effects": { "incomePerSec": 20 }
+  },
+  {
+    "id": "fleet_maintenance",
+    "name": "Fleet Maintenance",
+    "cost": 680,
+    "effects": { "truck.condition": 0.05 }
+  },
+  {
+    "id": "union_outreach",
+    "name": "Union Outreach",
+    "cost": 950,
+    "effects": { "crewEff": 0.05 },
+    "reqStage": "Foreman"
+  },
+  {
+    "id": "prefab_workshop",
+    "name": "Prefab Workshop",
+    "cost": 1600,
+    "effects": { "buildSpeed": 0.12 },
+    "reqStage": "SiteManager"
+  }
+]

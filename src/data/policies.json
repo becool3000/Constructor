@@ -1,0 +1,34 @@
+[
+  {
+    "id": "overtime",
+    "name": "Overtime",
+    "type": "toggle",
+    "values": [false, true],
+    "effectsByLevel": {
+      "false": {},
+      "true": { "buildSpeed": 0.2, "moraleDaily": -0.05 }
+    }
+  },
+  {
+    "id": "safety",
+    "name": "Safety Standards",
+    "type": "level",
+    "values": [0, 1, 2],
+    "effectsByLevel": {
+      "0": { "moraleDaily": -0.02 },
+      "1": {},
+      "2": { "moraleCap": 0.05, "buildSpeed": -0.05 }
+    }
+  },
+  {
+    "id": "greenCodes",
+    "name": "Green Codes",
+    "type": "level",
+    "values": [0, 1, 2],
+    "effectsByLevel": {
+      "0": {},
+      "1": { "winRate": 0.02 },
+      "2": { "winRate": 0.04, "materialsMod": -0.05 }
+    }
+  }
+]

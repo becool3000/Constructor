@@ -1,0 +1,21 @@
+[
+  {
+    "id": "milestone_apprentice",
+    "repReq": 10,
+    "reward": { "turnsDelta": 1, "stageSet": "Apprentice" }
+  },
+  {
+    "id": "milestone_foreman",
+    "stageReq": "Apprentice",
+    "repReq": 30,
+    "jobReq": 3,
+    "reward": { "unlockTab": "Crew", "stageSet": "Foreman", "turnsDelta": 1 }
+  },
+  {
+    "id": "milestone_contractor",
+    "stageReq": "Foreman",
+    "repReq": 80,
+    "jobReq": "office_ti",
+    "reward": { "unlockTab": "Prestige", "stageSet": "Contractor" }
+  }
+]
