@@ -11,7 +11,7 @@ const Jobs = ({ state, jobs, onTakeGig, onBid }) => {
         <thead>
           <tr>
             <th>Job</th>
-            <th>Duration</th>
+            <th>Turns</th>
             <th>Payout</th>
             <th>Rep</th>
             <th>Action</th>
@@ -23,7 +23,7 @@ const Jobs = ({ state, jobs, onTakeGig, onBid }) => {
             return (
               <tr key={job.id}>
                 <td>{job.name}</td>
-                <td>{job.durationH}h</td>
+                <td>{job.turnsRequired ?? job.durationH}</td>
                 <td>${job.payout}</td>
                 <td>{job.rep}</td>
                 <td>
@@ -57,9 +57,18 @@ const Jobs = ({ state, jobs, onTakeGig, onBid }) => {
         {state.jobs.active.length === 0 ? (
           <p>No active jobs in progress.</p>
         ) : (
-          state.jobs.active.map((job) => (
-            <ProgressBar key={job.id} value={job.progress} max={job.durationH} label={job.name} />
-          ))
+          state.jobs.active.map((job) => {
+            const totalTurns = job.turnsRequired ?? job.durationH ?? 1;
+            const turnsDone = Math.min(totalTurns, job.progress ?? 0);
+            return (
+              <ProgressBar
+                key={job.id}
+                value={turnsDone}
+                max={totalTurns}
+                label={`${job.name} · ${turnsDone.toFixed(1)}/${totalTurns} turns`}
+              />
+            );
+          })
         )}
       </div>
     </div>

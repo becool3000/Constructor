@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../save.js';
-import { recalculateDerived, buyTool, endDay, takeGig, togglePolicy } from '../actions.js';
+import { recalculateDerived, buyTool, endDay, takeGig, togglePolicy, endTurn } from '../actions.js';
 
 const init = () => recalculateDerived(createInitialState());
 
@@ -23,6 +23,17 @@ describe('actions', () => {
     state = takeGig(state, 'yard_cleanup');
     expect(state.jobs.active.length).toBe(1);
     expect(state.turnsLeft).toBeLessThan(turns);
+  });
+
+  it('spending a turn progresses active jobs', () => {
+    let state = init();
+    state = { ...state, resources: { ...state.resources, cash: 1000 } };
+    state = buyTool(state, 'work_boots');
+    state = takeGig(state, 'yard_cleanup');
+    const turnsBefore = state.turnsLeft;
+    state = endTurn(state);
+    expect(state.turnsLeft).toBe(turnsBefore - 1);
+    expect(state.jobs.active[0].progress).toBeGreaterThan(0);
   });
 
   it('endDay resets turns to stage base', () => {

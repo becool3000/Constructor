@@ -16,6 +16,7 @@ import {
   assignCrew,
   hireCrewMember,
   togglePolicy,
+  endTurn,
   endDay,
   promoteStage,
   bidJob,
@@ -31,7 +32,7 @@ import {
   baseTurns,
 } from '../logic/save.js';
 import { validateContent, getJob, content, availableTools, availableUpgrades, STAGE_ORDER } from '../logic/content.js';
-import { configureTick, startTick, stopTick, advanceTick } from '../logic/tick.js';
+import { advanceTick } from '../logic/tick.js';
 import { availablePrestigeChoices, canPrestige, chartersEarned, performPrestige } from '../logic/prestige.js';
 
 const TABS = ['Dashboard', 'Jobs', 'Tools', 'Crew', 'Fleet', 'Upgrades', 'Policies', 'Finance', 'Prestige'];
@@ -65,21 +66,12 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    configureTick({
-      getState: () => stateRef.current,
-      setState: (updater) => {
-        updateState((prev) => {
-          const next = typeof updater === 'function' ? updater(prev) : updater;
-          return next;
-        });
-      },
-    });
-    startTick();
-    return () => {
-      stopTick();
-      saveGame(stateRef.current);
-    };
-  }, [updateState]);
+    saveGame(state);
+  }, [state]);
+
+  useEffect(() => () => {
+    saveGame(stateRef.current);
+  }, []);
 
   const wrapAction = useCallback(
     (fn) =>
@@ -101,6 +93,7 @@ const App = () => {
       assignCrew: wrapAction(assignCrew),
       hireCrewMember: wrapAction(hireCrewMember),
       togglePolicy: wrapAction(togglePolicy),
+      endTurn: wrapAction(endTurn),
       endDay: wrapAction(endDay),
       promoteStage: wrapAction(promoteStage),
       bidJob: wrapAction(bidJob),
@@ -162,11 +155,12 @@ const App = () => {
             fuel: prev.resources.fuel + 20,
           },
         })),
-      fastTick: () =>
+      fastTurn: () =>
         updateState((prev) => {
           let nextState = prev;
-          for (let i = 0; i < 100; i += 1) {
-            nextState = advanceTick(nextState);
+          for (let i = 0; i < 5; i += 1) {
+            if (nextState.turnsLeft <= 0) break;
+            nextState = endTurn(nextState);
           }
           return nextState;
         }),
@@ -174,15 +168,15 @@ const App = () => {
         updateState((prev) => {
           if (prev.jobs.active.length === 0) return prev;
           const job = prev.jobs.active[0];
-          const completedJob = { ...job, progress: job.durationH };
-          const advanced = advanceTick({
+          const required = job.turnsRequired ?? job.durationH ?? 1;
+          const completedJob = { ...job, progress: required, turnsRequired: required };
+          return advanceTick({
             ...prev,
             jobs: {
               ...prev.jobs,
               active: [completedJob, ...prev.jobs.active.slice(1)],
             },
           });
-          return advanced;
         }),
       reset: () => {
         clearSave();
@@ -232,6 +226,7 @@ const App = () => {
         return (
           <Dashboard
             state={state}
+            onEndTurn={actions.endTurn}
             onEndDay={actions.endDay}
             onPromote={milestoneReady ? actions.promoteStage : null}
             nextMilestone={nextMilestone}
