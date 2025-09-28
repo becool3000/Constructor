@@ -116,6 +116,11 @@ const App = () => {
 
   const handleExport = useCallback(() => exportSave(stateRef.current), []);
 
+  const handleReset = useCallback(() => {
+    clearSave();
+    updateState(recalculateDerived(loadGame()));
+  }, [updateState]);
+
   const handleImport = useCallback(
     (raw) => {
       try {
@@ -234,6 +239,7 @@ const App = () => {
             nextMilestone={nextMilestone}
             onExport={handleExport}
             onImport={handleImport}
+            onReset={handleReset}
             devActions={devActions}
           />
         );
