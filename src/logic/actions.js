@@ -347,13 +347,12 @@ export const hireCrewMember = (state, name, skill) => {
   return next;
 };
 
-export const updatePlayerProfile = (state, name, skill) => {
+export const updatePlayerProfile = (state, name) => {
   const next = cloneState(state);
   const trimmedName = typeof name === 'string' ? name.trim() : '';
-  const normalizedSkill = CREW_SKILLS.includes(skill) ? skill : DEFAULT_CREW_SKILL;
   next.player = {
+    ...next.player,
     name: trimmedName.length > 0 ? trimmedName : DEFAULT_PLAYER_NAME,
-    skill: normalizedSkill,
   };
   return next;
 };
