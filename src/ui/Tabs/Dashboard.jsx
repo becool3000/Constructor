@@ -2,7 +2,16 @@ import React, { useState } from 'react';
 import ProgressBar from '../components/ProgressBar.jsx';
 import Stat from '../components/Stat.jsx';
 
-const Dashboard = ({ state, onEndDay, onPromote, nextMilestone, onExport, onImport, devActions }) => {
+const Dashboard = ({
+  state,
+  onEndTurn,
+  onEndDay,
+  onPromote,
+  nextMilestone,
+  onExport,
+  onImport,
+  devActions,
+}) => {
   const [saveText, setSaveText] = useState('');
   const [status, setStatus] = useState('');
 
@@ -36,10 +45,21 @@ const Dashboard = ({ state, onEndDay, onPromote, nextMilestone, onExport, onImpo
               <Stat key={stat.label} label={stat.label} value={stat.value} />
             ))}
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-            <button type="button" className="primary" onClick={onEndDay} aria-label="End Day">
-              End Day
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="primary"
+              onClick={onEndTurn}
+              aria-label="End Turn"
+              disabled={state.turnsLeft <= 0}
+            >
+              End Turn
             </button>
+            {state.turnsLeft <= 0 ? (
+              <button type="button" className="secondary" onClick={onEndDay} aria-label="End Day">
+                End Day
+              </button>
+            ) : null}
             {onPromote ? (
               <button type="button" className="secondary" onClick={onPromote} aria-label="Promote Stage">
                 Promote
@@ -79,14 +99,18 @@ const Dashboard = ({ state, onEndDay, onPromote, nextMilestone, onExport, onImpo
         {state.jobs.active.length === 0 ? (
           <p>No active jobs. Visit the Jobs tab to take on new work.</p>
         ) : (
-          state.jobs.active.map((job) => (
-            <ProgressBar
-              key={job.id}
-              value={job.progress}
-              max={job.durationH}
-              label={`${job.name}`}
-            />
-          ))
+          state.jobs.active.map((job) => {
+            const totalTurns = job.turnsRequired ?? job.durationH ?? 1;
+            const turnsDone = Math.min(totalTurns, job.progress ?? 0);
+            return (
+              <ProgressBar
+                key={job.id}
+                value={turnsDone}
+                max={totalTurns}
+                label={`${job.name} · ${turnsDone.toFixed(1)}/${totalTurns} turns`}
+              />
+            );
+          })
         )}
       </div>
       {devActions ? (
@@ -99,8 +123,8 @@ const Dashboard = ({ state, onEndDay, onPromote, nextMilestone, onExport, onImpo
             <button type="button" className="secondary" onClick={devActions.addMaterials}>
               +Materials
             </button>
-            <button type="button" className="secondary" onClick={devActions.fastTick}>
-              x10 Tick
+            <button type="button" className="secondary" onClick={devActions.fastTurn}>
+              +5 Turns
             </button>
             <button type="button" className="secondary" onClick={devActions.finishJob}>
               Finish Active Job

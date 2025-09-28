@@ -9,6 +9,7 @@ import {
   jobsForStage,
 } from './content.js';
 import { recordLedger, baseTurns } from './save.js';
+import { advanceTick } from './tick.js';
 import { createRng } from './rng.js';
 
 const BASE_RATES = {
@@ -58,6 +59,8 @@ const consumeTurn = (state, amount = 1) => {
   next.turnsLeft = Math.max(0, next.turnsLeft - amount);
   return next;
 };
+
+const TURN_SECONDS = 3600;
 
 const nextCrewName = (state) => {
   const used = new Set(state.crew.members.map((m) => m.name));
@@ -209,7 +212,8 @@ export const takeGig = (state, jobId) => {
     {
       id: job.id,
       name: job.name,
-      durationH: job.durationH,
+      turnsRequired: job.turnsRequired,
+      durationH: job.turnsRequired,
       progress: 0,
       materials: job.materials ?? {},
       assignedCrew: [],
@@ -226,6 +230,13 @@ export const takeGig = (state, jobId) => {
     label: `Mobilized ${job.name}`,
     delta: materialSummary ? `-${materialSummary}` : 'ready',
   });
+};
+
+export const endTurn = (state) => {
+  if (state.turnsLeft <= 0) return state;
+  const progressed = advanceTick(state, TURN_SECONDS);
+  const consumed = consumeTurn(progressed);
+  return recalculateDerived(consumed);
 };
 
 export const buyTool = (state, toolId) => {
@@ -332,6 +343,7 @@ export const togglePolicy = (state, policyId, value) => {
 };
 
 export const endDay = (state) => {
+  if (state.turnsLeft > 0) return state;
   const next = cloneState(state);
   next.day += 1;
   const moraleDrift = next.modifiers.moraleDaily ?? 0;

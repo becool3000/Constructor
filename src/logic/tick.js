@@ -38,6 +38,7 @@ export const advanceTick = (state, dtSeconds = 1 / TICK_RATE) => {
   const remainingJobs = [];
 
   next.jobs.active.forEach((job) => {
+    const required = job.turnsRequired ?? job.durationH ?? 1;
     const speedBase = next.rates.buildSpeed * next.rates.crewEff * (next.resources.morale ?? 1);
     let multiplier = speedBase * crewBonus(job);
     if (requiresConcrete(job)) {
@@ -47,7 +48,7 @@ export const advanceTick = (state, dtSeconds = 1 / TICK_RATE) => {
       multiplier *= 1 + (next.modifiers.structureSpeed ?? 0);
     }
     const progress = job.progress + multiplier * dtHours;
-    if (progress >= job.durationH) {
+    if (progress >= required) {
       const jobDef = getJob(job.id);
       if (jobDef) {
         next.resources.cash += jobDef.payout;
@@ -64,7 +65,7 @@ export const advanceTick = (state, dtSeconds = 1 / TICK_RATE) => {
         }
       }
     } else {
-      remainingJobs.push({ ...job, progress });
+      remainingJobs.push({ ...job, progress, turnsRequired: required });
     }
   });
 

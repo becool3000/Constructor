@@ -1,14 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { advanceTick } from '../tick.js';
 import { createInitialState } from '../save.js';
-import { recalculateDerived, takeGig, buyTool } from '../actions.js';
+import { recalculateDerived, takeGig, buyTool, endTurn, endDay } from '../actions.js';
 
-const runTicks = (state, seconds) => {
+const runTurns = (state, turns) => {
   let next = state;
-  const step = 1 / 10;
-  const total = Math.ceil(seconds / step);
-  for (let i = 0; i < total; i += 1) {
-    next = advanceTick(next, step);
+  let remaining = turns;
+  while (remaining > 0) {
+    if (next.turnsLeft <= 0) {
+      next = endDay(next);
+    } else {
+      next = endTurn(next);
+      remaining -= 1;
+    }
   }
   return next;
 };
@@ -20,9 +23,8 @@ describe('tick loop', () => {
     state = buyTool(state, 'work_boots');
     state = takeGig(state, 'yard_cleanup');
     const job = state.jobs.active[0];
-    const hours = job.durationH;
-    const seconds = hours * 3600;
-    const completed = runTicks(state, seconds * 1.1);
+    const totalTurns = job.turnsRequired ?? job.durationH ?? 1;
+    const completed = runTurns(state, Math.ceil(totalTurns) + 1);
     expect(completed.jobs.active.length).toBe(0);
     expect(completed.jobs.completed.some((j) => j.id === 'yard_cleanup')).toBe(true);
     expect(completed.resources.cash).toBeGreaterThan(state.resources.cash);
