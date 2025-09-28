@@ -1,6 +1,7 @@
 import { applyEffectBundle, deepCopy } from './math.js';
 import { content, BASE_TURNS_BY_STAGE, jobsForStage } from './content.js';
 import CREW_SKILLS from '../data/crewSkills.js';
+import { createDefaultSkillState, normalizeSkillState } from './skills.js';
 
 const STORAGE_KEY = 'constructor-career-clicker-save';
 const AUTOSAVE_INTERVAL_MS = 5000;
@@ -41,7 +42,7 @@ const baseState = {
   },
   player: {
     name: DEFAULT_PLAYER_NAME,
-    skill: DEFAULT_CREW_SKILL,
+    skills: createDefaultSkillState(),
   },
   truck: {
     condition: 1.0,
@@ -109,9 +110,12 @@ const normalizeCrewMembers = (members = []) =>
   });
 
 const normalizePlayer = (player = {}) => {
-  const name = typeof player?.name === 'string' && player.name.trim().length > 0 ? player.name.trim() : DEFAULT_PLAYER_NAME;
-  const skill = CREW_SKILLS.includes(player?.skill) ? player.skill : DEFAULT_CREW_SKILL;
-  return { name, skill };
+  const name =
+    typeof player?.name === 'string' && player.name.trim().length > 0
+      ? player.name.trim()
+      : DEFAULT_PLAYER_NAME;
+  const normalizedSkills = normalizeSkillState(player?.skills ?? {});
+  return { name, skills: normalizedSkills };
 };
 
 const mergeState = (loaded) => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../save.js';
 import { recalculateDerived, takeGig, buyTool, workJob, endDay } from '../actions.js';
+import { normalizeSkillState } from '../skills.js';
 
 const runTurns = (state, turns) => {
   let next = state;
@@ -30,5 +31,7 @@ describe('tick loop', () => {
     expect(completed.jobs.active.length).toBe(0);
     expect(completed.jobs.completed.some((j) => j.id === 'yard_cleanup')).toBe(true);
     expect(completed.resources.cash).toBeGreaterThan(state.resources.cash);
+    const skills = normalizeSkillState(completed.player.skills);
+    expect(skills.Laborer.xp).toBeGreaterThan(0);
   });
 });

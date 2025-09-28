@@ -7,7 +7,11 @@
     "reqTools": [],
     "materials": {},
     "payout": 5,
-    "rep": 1
+    "rep": 1,
+    "skillXp": {
+      "Laborer": 15,
+      "Landscape Specialist": 10
+    }
   },
   {
     "id": "yard_cleanup",
@@ -17,7 +21,12 @@
     "reqTools": ["work_boots"],
     "materials": { "fuel": 2 },
     "payout": 450,
-    "rep": 2
+    "rep": 2,
+    "skillXp": {
+      "Laborer": 25,
+      "Organizer": 15,
+      "Landscape Specialist": 15
+    }
   },
   {
     "id": "patch_paint",
@@ -27,7 +36,12 @@
     "reqTools": ["work_boots", "drill"],
     "materials": { "lumber": 1 },
     "payout": 620,
-    "rep": 3
+    "rep": 3,
+    "skillXp": {
+      "Painter": 35,
+      "Trim Carpenter": 20,
+      "Drywall Installer": 10
+    }
   },
   {
     "id": "small_deck",
@@ -37,7 +51,12 @@
     "reqTools": ["work_boots", "circular_saw", "ladder"],
     "materials": { "lumber": 8, "concrete": 2 },
     "payout": 2100,
-    "rep": 6
+    "rep": 6,
+    "skillXp": {
+      "Carpenter": 45,
+      "Trim Carpenter": 30,
+      "Concrete Finisher": 20
+    }
   },
   {
     "id": "driveway_pour",
@@ -47,7 +66,12 @@
     "reqTools": ["work_boots", "generator"],
     "materials": { "concrete": 10, "steel": 2 },
     "payout": 3200,
-    "rep": 8
+    "rep": 8,
+    "skillXp": {
+      "Concrete Finisher": 50,
+      "Equipment Operator": 35,
+      "Heavy Equipment Mechanic": 15
+    }
   },
   {
     "id": "office_ti",
@@ -57,7 +81,13 @@
     "reqTools": ["work_boots", "drill", "ladder", "generator"],
     "materials": { "lumber": 6, "steel": 4, "concrete": 4 },
     "payout": 5200,
-    "rep": 12
+    "rep": 12,
+    "skillXp": {
+      "Electrician": 40,
+      "Drywall Installer": 30,
+      "HVAC Technician": 25,
+      "Plumber": 25
+    }
   },
   {
     "id": "duplex_frame",
@@ -67,6 +97,13 @@
     "reqTools": ["work_boots", "circular_saw", "generator", "mini_crane"],
     "materials": { "lumber": 16, "steel": 6 },
     "payout": 8800,
-    "rep": 18
+    "rep": 18,
+    "skillXp": {
+      "Project Manager": 40,
+      "Site Superintendent": 40,
+      "Safety Coordinator": 30,
+      "Estimator": 30,
+      "Surveyor": 20
+    }
   }
 ]

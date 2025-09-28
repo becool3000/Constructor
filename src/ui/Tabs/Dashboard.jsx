@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ProgressBar from '../components/ProgressBar.jsx';
 import Stat from '../components/Stat.jsx';
-import crewSkills from '../../data/crewSkills.js';
+import { getSkillProgress, normalizeSkillState, SKILL_XP_PER_LEVEL } from '../../logic/skills.js';
 
 const Dashboard = ({
   state,
@@ -45,13 +45,9 @@ const Dashboard = ({
       <div className="grid two">
         <div className="panel">
           <h2>Operations</h2>
-          <PlayerProfileEditor
-            player={state.player}
-            onUpdate={onUpdateProfile}
-          />
+          <PlayerProfileEditor player={state.player} onUpdate={onUpdateProfile} />
           <p style={{ fontSize: '0.85rem', marginBottom: '0.75rem' }}>
-            You are <strong>{state.player?.name}</strong>, specializing in{' '}
-            <strong>{state.player?.skill}</strong>.
+            You are <strong>{state.player?.name}</strong>. Complete jobs to earn experience and level up your specializations.
           </p>
           <div className="grid two">
             {stats.map((stat) => (
@@ -101,6 +97,7 @@ const Dashboard = ({
           ) : (
             <p style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>All milestones complete.</p>
           )}
+          <SkillOverview skills={state.player?.skills} />
         </div>
         <div className="panel">
           <h2>Save Data</h2>
@@ -192,22 +189,16 @@ export default Dashboard;
 
 const PlayerProfileEditor = ({ player, onUpdate }) => {
   const defaultName = player?.name ?? '';
-  const defaultSkill = crewSkills.includes(player?.skill) ? player.skill : crewSkills[0];
   const [name, setName] = useState(defaultName);
-  const [skill, setSkill] = useState(defaultSkill);
 
   useEffect(() => {
     setName(defaultName);
   }, [defaultName]);
 
-  useEffect(() => {
-    setSkill(defaultSkill);
-  }, [defaultSkill]);
-
   const handleSubmit = (event) => {
     event.preventDefault();
     if (typeof onUpdate === 'function') {
-      onUpdate(name, skill);
+      onUpdate(name);
     }
   };
 
@@ -230,20 +221,99 @@ const PlayerProfileEditor = ({ player, onUpdate }) => {
         aria-label="Player name"
         style={{ minWidth: '12rem' }}
       />
-      <select
-        value={skill}
-        onChange={(event) => setSkill(event.target.value)}
-        aria-label="Player specialization"
-      >
-        {crewSkills.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
       <button type="submit" className="secondary">
         Update Profile
       </button>
     </form>
+  );
+};
+
+const SkillOverview = ({ skills }) => {
+  const rows = useMemo(() => {
+    const normalized = normalizeSkillState(skills ?? {});
+    return Object.entries(normalized)
+      .map(([name, entry]) => {
+        const progress = getSkillProgress(entry);
+        const neededXp = progress.neededXp > 0 ? progress.neededXp : SKILL_XP_PER_LEVEL;
+        const percent = neededXp > 0 ? Math.min(1, progress.progressXp / neededXp) : 1;
+        return {
+          name,
+          level: progress.level,
+          xp: progress.xp,
+          percent,
+          progressXp: progress.progressXp,
+          neededXp,
+        };
+      })
+      .sort((a, b) => {
+        if (b.level !== a.level) return b.level - a.level;
+        if (b.xp !== a.xp) return b.xp - a.xp;
+        return a.name.localeCompare(b.name);
+      });
+  }, [skills]);
+
+  return (
+    <div style={{ marginTop: '1.25rem' }}>
+      <h3 style={{ marginBottom: '0.5rem', fontSize: '1rem' }}>Specialization Skills</h3>
+      <div
+        style={{
+          maxHeight: '220px',
+          overflowY: 'auto',
+          borderRadius: '0.5rem',
+          border: '1px solid rgba(148,163,184,0.2)',
+        }}
+      >
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '0.5rem', position: 'sticky', top: 0, background: 'rgba(15,23,42,0.95)' }}>
+                Skill
+              </th>
+              <th style={{ textAlign: 'right', padding: '0.5rem', position: 'sticky', top: 0, background: 'rgba(15,23,42,0.95)' }}>
+                Level
+              </th>
+              <th style={{ textAlign: 'left', padding: '0.5rem', position: 'sticky', top: 0, background: 'rgba(15,23,42,0.95)' }}>
+                Progress
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => {
+              const percent = Math.round(row.percent * 100);
+              const needed = row.neededXp > 0 ? row.neededXp : SKILL_XP_PER_LEVEL;
+              return (
+                <tr key={row.name} style={{ borderTop: '1px solid rgba(148,163,184,0.2)' }}>
+                  <td style={{ padding: '0.5rem' }}>{row.name}</td>
+                  <td style={{ padding: '0.5rem', textAlign: 'right' }}>Lv {row.level}</td>
+                  <td style={{ padding: '0.5rem' }}>
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '0.5rem',
+                        borderRadius: '999px',
+                        background: 'rgba(148,163,184,0.15)',
+                        overflow: 'hidden',
+                        marginBottom: '0.35rem',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${Math.min(100, percent)}%`,
+                          height: '100%',
+                          background: 'linear-gradient(90deg, #38bdf8, #34d399)',
+                        }}
+                      />
+                    </div>
+                    <div style={{ fontSize: '0.7rem', color: 'rgba(226,232,240,0.75)' }}>
+                      {percent}% · {Math.round(row.progressXp)}/{Math.round(needed)} XP
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };

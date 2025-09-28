@@ -1,6 +1,7 @@
 import { deepCopy, clamp } from './math.js';
 import { getJob } from './content.js';
 import { getAutosaveInterval, saveGame } from './save.js';
+import { addSkillXp } from './skills.js';
 
 const TICK_RATE = 10;
 const MS_PER_TICK = 1000 / TICK_RATE;
@@ -58,6 +59,12 @@ export const advanceTick = (state, dtSeconds = 1 / TICK_RATE, targetJobId = null
       if (jobDef) {
         next.resources.cash += jobDef.payout;
         next.resources.reputation += jobDef.rep;
+        if (jobDef.skillXp) {
+          next.player = {
+            ...next.player,
+            skills: addSkillXp(next.player?.skills, jobDef.skillXp),
+          };
+        }
         ledger.push({
           id: `${job.id}-complete-${Date.now()}`,
           type: 'job-complete',
