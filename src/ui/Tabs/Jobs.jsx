@@ -2,7 +2,7 @@ import React from 'react';
 import ProgressBar from '../components/ProgressBar.jsx';
 import { STAGE_ORDER } from '../../logic/content.js';
 
-const Jobs = ({ state, jobs, onTakeGig, onBid }) => {
+const Jobs = ({ state, jobs, onTakeGig, onBid, onWorkJob }) => {
   const canBid = STAGE_ORDER.indexOf(state.stage) >= STAGE_ORDER.indexOf('Contractor');
   return (
     <div className="panel">
@@ -53,20 +53,49 @@ const Jobs = ({ state, jobs, onTakeGig, onBid }) => {
         </tbody>
       </table>
       <div className="panel" style={{ marginTop: '1rem' }}>
-        <h2>Active Jobs</h2>
+        <h2>Job Queue</h2>
+        <p style={{ fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+          Turns remaining today: <strong>{state.turnsLeft}</strong>
+        </p>
         {state.jobs.active.length === 0 ? (
           <p>No active jobs in progress.</p>
         ) : (
           state.jobs.active.map((job) => {
             const totalTurns = job.turnsRequired ?? job.durationH ?? 1;
             const turnsDone = Math.min(totalTurns, job.progress ?? 0);
+            const turnsRemaining = Math.max(0, totalTurns - turnsDone);
+            const disabled = state.turnsLeft <= 0 || turnsRemaining <= 0;
             return (
-              <ProgressBar
+              <div
                 key={job.id}
-                value={turnsDone}
-                max={totalTurns}
-                label={`${job.name} · ${turnsDone.toFixed(1)}/${totalTurns} turns`}
-              />
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.75rem',
+                  alignItems: 'center',
+                  marginBottom: '0.75rem',
+                }}
+              >
+                <div style={{ flex: '1 1 220px', minWidth: '220px' }}>
+                  <ProgressBar
+                    value={turnsDone}
+                    max={totalTurns}
+                    label={`${job.name} · ${turnsDone.toFixed(1)}/${totalTurns} turns`}
+                  />
+                </div>
+                <div style={{ fontSize: '0.85rem', minWidth: '120px' }}>
+                  {turnsRemaining.toFixed(1)} turns remaining
+                </div>
+                <button
+                  type="button"
+                  className="primary"
+                  onClick={() => onWorkJob(job.id)}
+                  disabled={disabled}
+                  aria-label={`Work on ${job.name}`}
+                >
+                  Work Turn
+                </button>
+              </div>
             );
           })
         )}

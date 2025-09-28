@@ -239,6 +239,17 @@ export const endTurn = (state) => {
   return recalculateDerived(consumed);
 };
 
+export const workJob = (state, jobId) => {
+  if (state.turnsLeft <= 0) return state;
+  if (!jobId) return state;
+  const activeJob = state.jobs.active.find((job) => job.id === jobId);
+  if (!activeJob) return state;
+  const progressed = advanceTick(state, TURN_SECONDS, jobId);
+  if (progressed === state) return state;
+  const consumed = consumeTurn(progressed);
+  return recalculateDerived(consumed);
+};
+
 export const buyTool = (state, toolId) => {
   const tool = getTool(toolId);
   if (!tool) return state;
