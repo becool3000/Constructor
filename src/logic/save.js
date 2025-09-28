@@ -1,5 +1,6 @@
 import { applyEffectBundle, deepCopy } from './math.js';
 import { content, BASE_TURNS_BY_STAGE, jobsForStage } from './content.js';
+import CREW_SKILLS from '../data/crewSkills.js';
 
 const STORAGE_KEY = 'constructor-career-clicker-save';
 const AUTOSAVE_INTERVAL_MS = 5000;
@@ -14,6 +15,8 @@ const getStorage = () => {
 };
 
 export const getAutosaveInterval = () => AUTOSAVE_INTERVAL_MS;
+
+const DEFAULT_CREW_SKILL = CREW_SKILLS[0];
 
 const baseState = {
   day: 1,
@@ -87,6 +90,19 @@ export const createInitialState = (permanentMods = {}) => {
   return initial;
 };
 
+const normalizeCrewMembers = (members = []) =>
+  members.map((member, index) => {
+    const normalizedSkill = CREW_SKILLS.includes(member?.skill) ? member.skill : DEFAULT_CREW_SKILL;
+    const assignment = typeof member?.assignment === 'string' && member.assignment.length > 0 ? member.assignment : null;
+    return {
+      ...member,
+      id: member?.id ?? `crew-${index + 1}`,
+      name: typeof member?.name === 'string' && member.name.trim().length > 0 ? member.name : `Crew-${index + 1}`,
+      assignment,
+      skill: normalizedSkill,
+    };
+  });
+
 const mergeState = (loaded) => {
   const initial = createInitialState(loaded?.prestige?.permanentMods ?? {});
   const merged = {
@@ -114,6 +130,7 @@ const mergeState = (loaded) => {
     ui: { ...initial.ui, ...loaded?.ui },
     lastSave: loaded?.lastSave ?? 0,
   };
+  merged.crew.members = normalizeCrewMembers(merged.crew.members);
   return ensureJobQueue(merged);
 };
 
