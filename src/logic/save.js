@@ -1,5 +1,6 @@
 import { applyEffectBundle, deepCopy } from './math.js';
 import { content, BASE_TURNS_BY_STAGE, jobsForStage } from './content.js';
+import CREW_SKILLS from '../data/crewSkills.js';
 
 const STORAGE_KEY = 'constructor-career-clicker-save';
 const AUTOSAVE_INTERVAL_MS = 5000;
@@ -14,6 +15,9 @@ const getStorage = () => {
 };
 
 export const getAutosaveInterval = () => AUTOSAVE_INTERVAL_MS;
+
+const DEFAULT_CREW_SKILL = CREW_SKILLS[0];
+const DEFAULT_PLAYER_NAME = 'Founder';
 
 const baseState = {
   day: 1,
@@ -34,6 +38,10 @@ const baseState = {
     buildSpeed: 1.0,
     crewEff: 1.0,
     winRate: 0.4,
+  },
+  player: {
+    name: DEFAULT_PLAYER_NAME,
+    skill: DEFAULT_CREW_SKILL,
   },
   truck: {
     condition: 1.0,
@@ -87,6 +95,25 @@ export const createInitialState = (permanentMods = {}) => {
   return initial;
 };
 
+const normalizeCrewMembers = (members = []) =>
+  members.map((member, index) => {
+    const normalizedSkill = CREW_SKILLS.includes(member?.skill) ? member.skill : DEFAULT_CREW_SKILL;
+    const assignment = typeof member?.assignment === 'string' && member.assignment.length > 0 ? member.assignment : null;
+    return {
+      ...member,
+      id: member?.id ?? `crew-${index + 1}`,
+      name: typeof member?.name === 'string' && member.name.trim().length > 0 ? member.name : `Crew-${index + 1}`,
+      assignment,
+      skill: normalizedSkill,
+    };
+  });
+
+const normalizePlayer = (player = {}) => {
+  const name = typeof player?.name === 'string' && player.name.trim().length > 0 ? player.name.trim() : DEFAULT_PLAYER_NAME;
+  const skill = CREW_SKILLS.includes(player?.skill) ? player.skill : DEFAULT_CREW_SKILL;
+  return { name, skill };
+};
+
 const mergeState = (loaded) => {
   const initial = createInitialState(loaded?.prestige?.permanentMods ?? {});
   const merged = {
@@ -114,6 +141,8 @@ const mergeState = (loaded) => {
     ui: { ...initial.ui, ...loaded?.ui },
     lastSave: loaded?.lastSave ?? 0,
   };
+  merged.player = normalizePlayer(loaded?.player ?? merged.player);
+  merged.crew.members = normalizeCrewMembers(merged.crew.members);
   return ensureJobQueue(merged);
 };
 

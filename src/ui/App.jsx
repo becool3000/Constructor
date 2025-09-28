@@ -15,6 +15,7 @@ import {
   buyMaterials,
   assignCrew,
   hireCrewMember,
+  updatePlayerProfile,
   togglePolicy,
   endTurn,
   workJob,
@@ -93,6 +94,7 @@ const App = () => {
       buyMaterials: wrapAction(buyMaterials),
       assignCrew: wrapAction(assignCrew),
       hireCrewMember: wrapAction(hireCrewMember),
+      updatePlayerProfile: wrapAction(updatePlayerProfile),
       togglePolicy: wrapAction(togglePolicy),
       endTurn: wrapAction(endTurn),
       workJob: wrapAction(workJob),
@@ -241,6 +243,7 @@ const App = () => {
             onImport={handleImport}
             onReset={handleReset}
             devActions={devActions}
+            onUpdateProfile={actions.updatePlayerProfile}
           />
         );
       case 'Jobs':

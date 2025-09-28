@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ProgressBar from '../components/ProgressBar.jsx';
 import Stat from '../components/Stat.jsx';
+import crewSkills from '../../data/crewSkills.js';
 
 const Dashboard = ({
   state,
@@ -12,6 +13,7 @@ const Dashboard = ({
   onImport,
   onReset,
   devActions,
+  onUpdateProfile,
 }) => {
   const [saveText, setSaveText] = useState('');
   const [status, setStatus] = useState('');
@@ -43,6 +45,14 @@ const Dashboard = ({
       <div className="grid two">
         <div className="panel">
           <h2>Operations</h2>
+          <PlayerProfileEditor
+            player={state.player}
+            onUpdate={onUpdateProfile}
+          />
+          <p style={{ fontSize: '0.85rem', marginBottom: '0.75rem' }}>
+            You are <strong>{state.player?.name}</strong>, specializing in{' '}
+            <strong>{state.player?.skill}</strong>.
+          </p>
           <div className="grid two">
             {stats.map((stat) => (
               <Stat key={stat.label} label={stat.label} value={stat.value} />
@@ -179,3 +189,61 @@ const Dashboard = ({
 };
 
 export default Dashboard;
+
+const PlayerProfileEditor = ({ player, onUpdate }) => {
+  const defaultName = player?.name ?? '';
+  const defaultSkill = crewSkills.includes(player?.skill) ? player.skill : crewSkills[0];
+  const [name, setName] = useState(defaultName);
+  const [skill, setSkill] = useState(defaultSkill);
+
+  useEffect(() => {
+    setName(defaultName);
+  }, [defaultName]);
+
+  useEffect(() => {
+    setSkill(defaultSkill);
+  }, [defaultSkill]);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (typeof onUpdate === 'function') {
+      onUpdate(name, skill);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        display: 'flex',
+        gap: '0.5rem',
+        alignItems: 'center',
+        marginBottom: '0.75rem',
+        flexWrap: 'wrap',
+      }}
+    >
+      <input
+        type="text"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        placeholder="Your name"
+        aria-label="Player name"
+        style={{ minWidth: '12rem' }}
+      />
+      <select
+        value={skill}
+        onChange={(event) => setSkill(event.target.value)}
+        aria-label="Player specialization"
+      >
+        {crewSkills.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <button type="submit" className="secondary">
+        Update Profile
+      </button>
+    </form>
+  );
+};
