@@ -1,0 +1,74 @@
+#include "CommonShared.hlsl"
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 dispatchId : SV_DispatchThreadID)
+{
+    uint2 p = dispatchId.xy;
+    if (!InBounds(int2(p)))
+        return;
+
+    uint id = ReadIdR(p);
+
+    if (id != MATERIAL_WATER)
+    {
+        CopyThrough(p);
+        return;
+    }
+
+    uint cooldown = GetCooldownR(p);
+    if (cooldown > 0)
+    {
+        cooldown -= 1u;
+    }
+
+    WriteIdW(p, MATERIAL_WATER);
+    WriteAuxW(p, ReadAuxR(p));
+
+    bool spawnedFoam = false;
+
+    if (g_EnableFoamMitosis != 0u && cooldown == 0u && IsInterface(p))
+    {
+        float splitRng = Rand01(p, g_FrameIndex);
+        if (splitRng < g_FoamPSplit)
+        {
+            int2 offsets[3] = {
+                int2(0, 1),
+                int2(-1, 0),
+                int2(1, 0)
+            };
+
+            int picked = -1;
+            [unroll]
+            for (int i = 0; i < 3; ++i)
+            {
+                int2 q = int2(p) + offsets[i];
+                if (!InBounds(q))
+                    continue;
+
+                uint2 uq = uint2(q);
+                if (ReadIdR(uq) == MATERIAL_AIR && ReadIdW(uq) == MATERIAL_AIR)
+                {
+                    picked = i;
+                    break;
+                }
+            }
+
+            if (picked >= 0 && TryConsumeFoamBudget())
+            {
+                uint2 dst = p + uint2(offsets[picked]);
+                WriteIdW(dst, MATERIAL_FOAM);
+                WriteAuxW(dst, 0u);
+                SetAgeW(dst, 0u);
+                SetCooldownW(p, g_FoamCooldownFrames);
+                SetAgeW(p, 0u);
+                spawnedFoam = true;
+            }
+        }
+    }
+
+    if (!spawnedFoam)
+    {
+        SetCooldownW(p, cooldown);
+        SetAgeW(p, 0u);
+    }
+}
