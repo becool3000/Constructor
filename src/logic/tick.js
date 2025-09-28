@@ -15,7 +15,7 @@ const crewBonus = (job) => 1 + (job.assignedCrew?.length ?? 0) * 0.05;
 const requiresConcrete = (job) => (job.materials?.concrete ?? 0) > 0;
 const isStructureJob = (job) => (job.materials?.lumber ?? 0) + (job.materials?.steel ?? 0) > 0;
 
-export const advanceTick = (state, dtSeconds = 1 / TICK_RATE) => {
+export const advanceTick = (state, dtSeconds = 1 / TICK_RATE, targetJobId = null) => {
   const dtHours = dtSeconds / 3600;
   const next = deepCopy(state);
   next.resources = { ...next.resources };
@@ -37,7 +37,12 @@ export const advanceTick = (state, dtSeconds = 1 / TICK_RATE) => {
   const ledger = [...(next.ledger ?? [])];
   const remainingJobs = [];
 
+  let anyProgress = false;
   next.jobs.active.forEach((job) => {
+    if (targetJobId && job.id !== targetJobId) {
+      remainingJobs.push(job);
+      return;
+    }
     const required = job.turnsRequired ?? job.durationH ?? 1;
     const speedBase = next.rates.buildSpeed * next.rates.crewEff * (next.resources.morale ?? 1);
     let multiplier = speedBase * crewBonus(job);
@@ -64,12 +69,17 @@ export const advanceTick = (state, dtSeconds = 1 / TICK_RATE) => {
           next.jobs.queue.push(job.id);
         }
       }
+      anyProgress = true;
     } else {
       remainingJobs.push({ ...job, progress, turnsRequired: required });
+      anyProgress = true;
     }
   });
 
   next.jobs.active = remainingJobs;
+  if (targetJobId && !anyProgress) {
+    return state;
+  }
   next.resources.morale = clamp(
     next.resources.morale,
     next.modifiers.moraleFloor,

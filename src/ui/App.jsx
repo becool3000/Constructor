@@ -17,6 +17,7 @@ import {
   hireCrewMember,
   togglePolicy,
   endTurn,
+  workJob,
   endDay,
   promoteStage,
   bidJob,
@@ -94,6 +95,7 @@ const App = () => {
       hireCrewMember: wrapAction(hireCrewMember),
       togglePolicy: wrapAction(togglePolicy),
       endTurn: wrapAction(endTurn),
+      workJob: wrapAction(workJob),
       endDay: wrapAction(endDay),
       promoteStage: wrapAction(promoteStage),
       bidJob: wrapAction(bidJob),
@@ -226,7 +228,7 @@ const App = () => {
         return (
           <Dashboard
             state={state}
-            onEndTurn={actions.endTurn}
+            onEndTurn={null}
             onEndDay={actions.endDay}
             onPromote={milestoneReady ? actions.promoteStage : null}
             nextMilestone={nextMilestone}
@@ -242,6 +244,7 @@ const App = () => {
             jobs={availableJobs}
             onTakeGig={actions.takeGig}
             onBid={actions.bidJob}
+            onWorkJob={actions.workJob}
           />
         );
       case 'Tools':

@@ -33,7 +33,9 @@ const Dashboard = ({
     { label: 'Reputation', value: resources.reputation.toFixed(0) },
     { label: 'Morale', value: resources.morale.toFixed(2) },
     { label: 'Permits', value: resources.permits.toFixed(1) },
+    { label: 'Turns Left', value: state.turnsLeft.toFixed(0) },
   ];
+  const showEndTurnButton = typeof onEndTurn === 'function';
 
   return (
     <div className="panel">
@@ -45,16 +47,30 @@ const Dashboard = ({
               <Stat key={stat.label} label={stat.label} value={stat.value} />
             ))}
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem', flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="primary"
-              onClick={onEndTurn}
-              aria-label="End Turn"
-              disabled={state.turnsLeft <= 0}
-            >
-              End Turn
-            </button>
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              marginTop: '1rem',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+            }}
+          >
+            {showEndTurnButton ? (
+              <button
+                type="button"
+                className="primary"
+                onClick={onEndTurn}
+                aria-label="End Turn"
+                disabled={state.turnsLeft <= 0}
+              >
+                End Turn
+              </button>
+            ) : (
+              <span style={{ fontSize: '0.85rem' }}>
+                Work jobs from the Jobs tab to spend turns.
+              </span>
+            )}
             {state.turnsLeft <= 0 ? (
               <button type="button" className="secondary" onClick={onEndDay} aria-label="End Day">
                 End Day

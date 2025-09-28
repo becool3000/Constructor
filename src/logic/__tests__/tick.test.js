@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../save.js';
-import { recalculateDerived, takeGig, buyTool, endTurn, endDay } from '../actions.js';
+import { recalculateDerived, takeGig, buyTool, workJob, endDay } from '../actions.js';
 
 const runTurns = (state, turns) => {
   let next = state;
@@ -9,7 +9,9 @@ const runTurns = (state, turns) => {
     if (next.turnsLeft <= 0) {
       next = endDay(next);
     } else {
-      next = endTurn(next);
+      const active = next.jobs.active[0];
+      if (!active) break;
+      next = workJob(next, active.id);
       remaining -= 1;
     }
   }
