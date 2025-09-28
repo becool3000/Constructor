@@ -10,6 +10,7 @@ const Dashboard = ({
   nextMilestone,
   onExport,
   onImport,
+  onReset,
   devActions,
 }) => {
   const [saveText, setSaveText] = useState('');
@@ -93,13 +94,35 @@ const Dashboard = ({
         </div>
         <div className="panel">
           <h2>Save Data</h2>
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+          <div
+            style={{
+              display: 'flex',
+              gap: '0.5rem',
+              marginBottom: '0.5rem',
+              flexWrap: 'wrap',
+            }}
+          >
             <button type="button" onClick={handleExport} className="secondary">
               Export Save
             </button>
             <button type="button" onClick={handleImport} className="secondary">
               Import Save
             </button>
+            {onReset ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Reset and start a new game? This cannot be undone.')) {
+                    onReset();
+                    setSaveText('');
+                    setStatus('New game started.');
+                  }
+                }}
+                className="danger"
+              >
+                Reset Game
+              </button>
+            ) : null}
           </div>
           <textarea
             style={{ width: '100%', minHeight: '120px', background: 'rgba(15,23,42,0.8)', color: 'inherit' }}
