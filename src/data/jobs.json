@@ -1,5 +1,15 @@
 [
   {
+    "id": "pull_weeds",
+    "name": "Pull Weeds",
+    "stage": "Laborer",
+    "durationH": 2,
+    "reqTools": [],
+    "materials": {},
+    "payout": 300,
+    "rep": 1
+  },
+  {
     "id": "yard_cleanup",
     "name": "Yard Cleanup",
     "stage": "Laborer",
