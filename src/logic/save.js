@@ -89,7 +89,7 @@ export const createInitialState = (permanentMods = {}) => {
 
 const mergeState = (loaded) => {
   const initial = createInitialState(loaded?.prestige?.permanentMods ?? {});
-  return {
+  const merged = {
     ...initial,
     ...loaded,
     resources: { ...initial.resources, ...loaded?.resources },
@@ -114,6 +114,7 @@ const mergeState = (loaded) => {
     ui: { ...initial.ui, ...loaded?.ui },
     lastSave: loaded?.lastSave ?? 0,
   };
+  return ensureJobQueue(merged);
 };
 
 export const loadGame = () => {
