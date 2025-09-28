@@ -11,7 +11,6 @@ import {
 import { recordLedger, baseTurns } from './save.js';
 import { advanceTick } from './tick.js';
 import { createRng } from './rng.js';
-import CREW_SKILLS from '../data/crewSkills.js';
 
 const BASE_RATES = {
   incomePerSec: 0,
@@ -49,8 +48,6 @@ const CREW_NAMES = [
   'Skylar',
   'Phoenix',
 ];
-
-const DEFAULT_CREW_SKILL = CREW_SKILLS[0];
 
 const stageIndex = (stage) => STAGE_ORDER.indexOf(stage);
 
@@ -332,16 +329,14 @@ export const assignCrew = (state, jobId, memberId) => {
   return consumeTurn(next);
 };
 
-export const hireCrewMember = (state, name, skill) => {
+export const hireCrewMember = (state) => {
   if (!state.crew.unlocked) return state;
   if (state.crew.members.length >= state.crew.capacity) return state;
   const next = cloneState(state);
   const id = `crew-${next.crew.members.length + 1}`;
-  const desiredName = typeof name === 'string' && name.trim().length > 0 ? name.trim() : nextCrewName(state);
-  const normalizedSkill = CREW_SKILLS.includes(skill) ? skill : DEFAULT_CREW_SKILL;
   next.crew.members = [
     ...next.crew.members,
-    { id, name: desiredName, assignment: null, skill: normalizedSkill },
+    { id, name: nextCrewName(state), assignment: null },
   ];
   return next;
 };
